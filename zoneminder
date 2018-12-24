@@ -1,0 +1,75 @@
+echo update
+apt-get update
+
+echo upgrade
+apt-get -y upgrade
+
+echo dist upgrade
+apt-get -y dist-upgrade
+
+echo install apache
+apt-get install -y apache2
+
+echo install mariadb
+apt-get install -y mariadb-server
+
+echo install php
+apt-get install -y php
+
+echo install required modules
+apt-get install -y php-mysql apache2-mod-php7.0
+
+echo replace default my.cnf 
+rm /etc/mysql/my.cnf
+cp /etc/mysql/mariadb.conf.d/50-server.cnf /etc/mysql/my.cnf
+sed -i 's/character-set-server = utf8mb4/character-set-server = latin1/g' /etc/mysql/my.cnf
+sed -i 's/collation-server = utf8mb4_general_ci/collation-server = latin1_swedish_ci/g' /etc/mysql/my.cnf
+
+echo restar mariadb
+systemctl restart mariadb
+
+echo add deb multimedia repository
+echo "deb http://www.deb-multimedia.org stretch main non-free" >> /etc/apt/sources.list
+
+echo install deb-multimedia-keyring
+wget http://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2016.8.1_all.deb
+dpkg -i deb-multimedia-keyring_2016.8.1_all.deb
+
+echo update
+apt-get update
+
+echo upgrade
+apt-get -y upgrade
+
+echo dist upgrade
+apt-get -y dist-upgrade
+
+echo install zoneminder
+apt install -y zoneminder vlc-plugin-base php7.0-gd
+
+echo configure permissions
+chmod 740 /etc/zm/zm.conf
+chown root:www-data /etc/zm/zm.conf
+
+echo enable zoneminder
+systemctl enable zoneminder.service
+
+echo add user www-data to video group
+adduser www-data video
+
+echo start zoneminder
+systemctl start zoneminder.service
+
+echo configure apache
+a2enmod cgi
+a2enmod rewrite
+a2enconf zoneminder
+
+echo configure timezone
+sed -i '/date.timezone =/c\date.timezone = Asia/Nicosia' /etc/php/7.0/apache2/php.ini
+
+echo configure permissions
+chown -R www-data:www-data /usr/share/zoneminder/
+
+echo restart apache
+systemctl restart apache2
