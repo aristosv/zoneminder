@@ -1,4 +1,4 @@
-# zoneminder
+# zoneminder-unattended
 Unattended installation of Zoneminder CCTV software
 ```
 bash <(curl -s https://raw.githubusercontent.com/aristosv/zoneminder/master/zoneminder)
