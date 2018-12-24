@@ -1,4 +1,4 @@
-# zoneminder-unattended
+# zoneminder
 Unattended installation of Zoneminder CCTV software
 ```
 wget --no-check-certificate -O - https://raw.githubusercontent.com/aristosv/zoneminder/master/zoneminder | bash
