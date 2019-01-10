@@ -1,7 +1,7 @@
 # zoneminder
 Unattended installation of Zoneminder CCTV software
 ```
-wget --no-check-certificate -O - https://raw.githubusercontent.com/aristosv/zoneminder/master/zoneminder | bash
+bash <(wget --no-check-certificate -qO- https://raw.githubusercontent.com/aristosv/zoneminder/master/zoneminder)
 ```
 Run the command above on a Debian Stretch machine.
 
