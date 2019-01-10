@@ -72,4 +72,3 @@ echo restart apache
 systemctl restart apache2
 
 echo installation complete
-echo access zoneminder using http://<ip_of_machine>/zm/
