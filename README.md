@@ -3,8 +3,8 @@ Unattended installation of Zoneminder CCTV software
 ```
 bash <(wget --no-check-certificate -qO- https://raw.githubusercontent.com/aristosv/zoneminder/master/zoneminder)
 ```
-Run the command above on a Debian Stretch machine.
+Run the command above on a clean, minimal installation of Debian Stretch.
 
-It will unattendedly install Zoneminder CCTV v1.30.4.
+The script will install Zoneminder CCTV v1.30.4.
 
-After installation finishes, you can access your Zoneminder machine on http://<ip_of_machine>/zm/
+After the installation you can access Zoneminder on http://<ip_of_machine>/zm/
