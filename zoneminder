@@ -85,7 +85,7 @@ a2enmod rewrite
 a2enconf zoneminder
 
 echo configuring timezone
-sed -i '/date.timezone =/c\date.timezone = Asia/Nicosia' /etc/php/7.0/apache2/php.ini
+sed -i "s/;date.timezone =/date.timezone = $(sed 's/\//\\\//' /etc/timezone)/g" /etc/php/7.0/apache2/php.ini
 
 echo configuring permissions
 chown -R www-data:www-data /usr/share/zoneminder/
