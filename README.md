@@ -7,4 +7,4 @@ Run the command above on a clean, minimal installation of Debian Stretch.
 
 The script will install Zoneminder CCTV v1.30.4.
 
-After the installation you can access Zoneminder on http://<ip_of_machine>/zm/
+After the installation you can access Zoneminder on http://<ip_address>/zm/
