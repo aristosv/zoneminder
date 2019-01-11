@@ -20,7 +20,7 @@ echo installing mariadb
 apt-get install -y mariadb-server
 
 echo securing mariadb
-echo set mariadb root password
+echo setting mariadb root password
 mysql --user="root" --password="" --execute="SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$database_root_pass');"
 
 echo removing anonymous users
