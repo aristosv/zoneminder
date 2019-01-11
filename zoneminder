@@ -5,19 +5,19 @@ read -p "press enter to continue"
 echo set a root password for mariadb: ; read database_root_pass
 
 echo updating
-apt-get update
+apt-get update > /dev/null 2>&1
 
 echo upgrading
-apt-get -y upgrade
+apt-get -y upgrade > /dev/null 2>&1
 
 echo dist upgrade
-apt-get -y dist-upgrade
+apt-get -y dist-upgrade > /dev/null 2>&1
 
 echo installing apache
-apt-get install -y apache2
+apt-get install -y apache2 > /dev/null 2>&1
 
 echo installing mariadb
-apt-get install -y mariadb-server
+apt-get install -y mariadb-server > /dev/null 2>&1
 
 echo securing mariadb
 echo setting mariadb root password
@@ -36,10 +36,10 @@ echo flushing privileges
 mysql --user="root" --password="" --execute="FLUSH PRIVILEGES;"
 
 echo installing php
-apt-get install -y php
+apt-get install -y php > /dev/null 2>&1
 
 echo installing required modules
-apt-get install -y php-mysql apache2-mod-php7.0
+apt-get install -y php-mysql apache2-mod-php7.0 > /dev/null 2>&1
 
 echo replacing default my.cnf 
 rm /etc/mysql/my.cnf
@@ -54,7 +54,7 @@ echo adding deb multimedia repository
 echo "deb http://www.deb-multimedia.org stretch main non-free" >> /etc/apt/sources.list
 
 echo installing deb-multimedia-keyring
-wget http://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2016.8.1_all.deb
+wget http://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2016.8.1_all.deb > /dev/null 2>&1
 dpkg -i deb-multimedia-keyring_2016.8.1_all.deb
 
 echo updating
