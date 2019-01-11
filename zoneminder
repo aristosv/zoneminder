@@ -1,3 +1,8 @@
+echo ===============================================================================
+echo this script will install zoneminder v1.30.4
+echo ===============================================================================
+read -p "press enter to continue"
+
 echo updating
 apt-get update
 
