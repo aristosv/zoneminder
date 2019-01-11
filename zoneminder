@@ -2,6 +2,7 @@ echo ===========================================================================
 echo this script will install zoneminder v1.30.4
 echo ===============================================================================
 read -p "press enter to continue"
+echo set a root password for mariadb: ; read database_root_pass
 
 echo updating
 apt-get update
@@ -17,6 +18,22 @@ apt-get install -y apache2
 
 echo installing mariadb
 apt-get install -y mariadb-server
+
+echo securing mariadb
+echo set mariadb root password
+mysql --user="root" --password="" --execute="SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$database_root_pass');"
+
+echo removing anonymous users
+mysql --user="root" --password="" --execute="DELETE FROM mysql.user WHERE User='';"
+
+echo disabling remote root logins
+mysql --user="root" --password="" --execute="DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
+
+echo removing test database
+mysql --user="root" --password="" --execute="DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%';"
+
+echo flushing privileges
+mysql --user="root" --password="" --execute="FLUSH PRIVILEGES;"
 
 echo installing php
 apt-get install -y php
