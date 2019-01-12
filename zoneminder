@@ -41,15 +41,6 @@ apt-get install -y php > /dev/null 2>&1
 echo installing required modules
 apt-get install -y php-mysql apache2-mod-php7.0 > /dev/null 2>&1
 
-echo replacing default my.cnf 
-rm /etc/mysql/my.cnf
-cp /etc/mysql/mariadb.conf.d/50-server.cnf /etc/mysql/my.cnf
-sed -i 's/character-set-server = utf8mb4/character-set-server = latin1/g' /etc/mysql/my.cnf
-sed -i 's/collation-server = utf8mb4_general_ci/collation-server = latin1_swedish_ci/g' /etc/mysql/my.cnf
-
-echo restarting mariadb
-systemctl restart mariadb
-
 echo adding deb multimedia repository
 echo "deb http://www.deb-multimedia.org stretch main non-free" >> /etc/apt/sources.list
 
