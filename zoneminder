@@ -1,6 +1,6 @@
-echo ===============================================================================
+echo ===========================================
 echo this script will install zoneminder v1.30.4
-echo ===============================================================================
+echo ===========================================
 read -p "press enter to continue"
 echo set a root password for mariadb: ; read database_root_pass
 
