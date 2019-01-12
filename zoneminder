@@ -55,16 +55,16 @@ echo "deb http://www.deb-multimedia.org stretch main non-free" >> /etc/apt/sourc
 
 echo installing deb-multimedia-keyring
 wget http://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2016.8.1_all.deb > /dev/null 2>&1
-dpkg -i deb-multimedia-keyring_2016.8.1_all.deb
+dpkg -i deb-multimedia-keyring_2016.8.1_all.deb  > /dev/null 2>&1
 
 echo updating
-apt-get update
+apt-get update > /dev/null 2>&1
 
 echo upgrading
-apt-get -y upgrade
+apt-get -y upgrade > /dev/null 2>&1
 
 echo installing zoneminder
-apt install -y zoneminder vlc-plugin-base php7.0-gd
+apt install -y zoneminder vlc-plugin-base php7.0-gd > /dev/null 2>&1
 
 echo configuring permissions
 chmod 740 /etc/zm/zm.conf
