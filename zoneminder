@@ -64,25 +64,18 @@ echo upgrading
 apt-get -y upgrade > /dev/null 2>&1
 
 echo installing zoneminder
-apt install -y zoneminder vlc-plugin-base php7.0-gd > /dev/null 2>&1
+apt-get install -y zoneminder vlc-plugin-base php7.0-gd > /dev/null 2>&1
 
 echo configuring permissions
 chmod 740 /etc/zm/zm.conf
 chown root:www-data /etc/zm/zm.conf
 
-echo enabling zoneminder
-systemctl enable zoneminder.service
-
 echo adding user www-data to video group
-adduser www-data video
-
-echo starting zoneminder
-systemctl start zoneminder.service
+adduser www-data video > /dev/null 2>&1
 
 echo configuring apache
-a2enmod cgi
-a2enmod rewrite
-a2enconf zoneminder
+a2enmod cgi > /dev/null 2>&1
+a2enmod rewrite > /dev/null 2>&1
 
 echo configuring timezone
 sed -i "s/;date.timezone =/date.timezone = $(sed 's/\//\\\//' /etc/timezone)/g" /etc/php/7.0/apache2/php.ini
