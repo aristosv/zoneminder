@@ -1,5 +1,5 @@
 # zoneminder
-Installation of Zoneminder CCTV software
+Automated installation of Zoneminder CCTV software
 ```
 bash <(wget --no-check-certificate -qO- https://raw.githubusercontent.com/aristosv/zoneminder/master/zoneminder)
 ```
