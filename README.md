@@ -1,7 +1,7 @@
 # zoneminder
 Automated installation of Zoneminder CCTV software
 
-Run the command below on a clean, minimal installation of Debian Stretch.
+Run the command below on a clean, minimal installation of Debian Buster.
 ```
 bash <(wget --no-check-certificate -qO- https://raw.githubusercontent.com/aristosv/zoneminder/master/zoneminder)
 ```
