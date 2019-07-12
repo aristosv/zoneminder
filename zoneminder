@@ -1,23 +1,20 @@
 echo ====================================
-echo this will install zoneminder v1.30.4
+echo this will install zoneminder v1.32.3
 echo ====================================
 read -p "press enter to continue"
 echo set a root password for mariadb: ; read database_root_pass
 
 echo updating
-apt-get update > /dev/null 2>&1
+apt update > /dev/null 2>&1
 
 echo upgrading
-apt-get -y upgrade > /dev/null 2>&1
+apt -y upgrade > /dev/null 2>&1
 
-echo dist upgrade
-apt-get -y dist-upgrade > /dev/null 2>&1
-
-echo installing apache
-apt-get install -y apache2 > /dev/null 2>&1
+echo installing wget
+apt install -y wget > /dev/null 2>&1
 
 echo installing mariadb
-apt-get install -y mariadb-server > /dev/null 2>&1
+apt install -y php mariadb-server php-mysql libapache2-mod-php7.3 > /dev/null 2>&1
 
 echo securing mariadb
 echo setting mariadb root password
@@ -35,47 +32,46 @@ mysql --user="root" --password="" --execute="DELETE FROM mysql.db WHERE Db='test
 echo flushing privileges
 mysql --user="root" --password="" --execute="FLUSH PRIVILEGES;"
 
-echo installing php
-apt-get install -y php > /dev/null 2>&1
-
-echo installing required modules
-apt-get install -y php-mysql apache2-mod-php7.0 > /dev/null 2>&1
-
 echo adding deb multimedia repository
-echo "deb http://www.deb-multimedia.org stretch main non-free" >> /etc/apt/sources.list
+echo "deb http://www.deb-multimedia.org buster main non-free" >> /etc/apt/sources.list
 
 echo installing deb-multimedia-keyring
 wget http://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2016.8.1_all.deb > /dev/null 2>&1
-dpkg -i deb-multimedia-keyring_2016.8.1_all.deb  > /dev/null 2>&1
+dpkg -i deb-multimedia-keyring_2016.8.1_all.deb > /dev/null 2>&1
 
 echo updating
-apt-get update > /dev/null 2>&1
-
-echo upgrading
-apt-get -y upgrade > /dev/null 2>&1
+apt update > /dev/null 2>&1
 
 echo installing zoneminder
-apt-get install -y zoneminder vlc-plugin-base php7.0-gd > /dev/null 2>&1
+apt install -y zoneminder vlc-plugin-base > /dev/null 2>&1
 
-echo configuring permissions
+echo creating zoneminder database
+mysql --user="root" --password="$database_root_pass" < /usr/share/zoneminder/db/zm_create.sql
+mysql --user="root" --password="$database_root_pass" -e "grant all on zm.* to 'zmuser'@localhost identified by 'zmpass';"
+mysqladmin -uroot -p"$database_root_pass" reload
+
+echo setting permissions
 chmod 740 /etc/zm/zm.conf
 chown root:www-data /etc/zm/zm.conf
+chown -R www-data:www-data /usr/share/zoneminder/
+chown -R www-data:www-data /var/cache/zoneminder/
 
 echo adding user www-data to video group
 adduser www-data video > /dev/null 2>&1
 
+echo restart zoneminder
+systemctl stop zoneminder
+systemctl start zoneminder
+
 echo configuring apache
 a2enmod cgi > /dev/null 2>&1
 a2enmod rewrite > /dev/null 2>&1
+a2enconf zoneminder > /dev/null 2>&1
 
 echo configuring timezone
-sed -i "s/;date.timezone =/date.timezone = $(sed 's/\//\\\//' /etc/timezone)/g" /etc/php/7.0/apache2/php.ini
-
-echo configuring permissions
-chown -R www-data:www-data /usr/share/zoneminder/
+sed -i "s/;date.timezone =/date.timezone = $(sed 's/\//\\\//' /etc/timezone)/g" /etc/php/7.3/apache2/php.ini
 
 echo restarting apache
 systemctl restart apache2
 
 echo installation complete
-echo you can access zoneminder on http://<ip_address>/zm/
