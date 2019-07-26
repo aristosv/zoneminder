@@ -84,3 +84,4 @@ docker run -d \
  quantumobject/docker-zoneminder > /dev/null 2>&1
  
  echo installation complete
+ echo you can access zoneminder at http://$(hostname -I | cut -d' ' -f1)/zm
