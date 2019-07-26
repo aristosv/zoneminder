@@ -1,79 +1,86 @@
 #!/bin/bash
 
-echo ====================================
-echo this will install zoneminder v1.32.3
-echo ====================================
+echo ===========================================================
+echo this will install zoneminder in a containerized environment
+echo ===========================================================
 read -p "press enter to continue"
+
 echo set a root password for mariadb: ; read database_root_pass
 
-echo updating
+echo updating repositories
 apt update > /dev/null 2>&1
 
-echo upgrading
+echo upgrading system
 apt -y upgrade > /dev/null 2>&1
 
-echo installing wget
-apt install -y wget > /dev/null 2>&1
+echo installing docker prerequisites
+apt install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common > /dev/null 2>&1
 
-echo installing mariadb
-apt install -y php mariadb-server php-mysql libapache2-mod-php7.3 > /dev/null 2>&1
+echo adding docker key
+curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -  > /dev/null 2>&1
 
-echo securing mariadb
-echo setting mariadb root password
-mysql --user="root" --password="" --execute="SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$database_root_pass');"
+echo adding docker repositories
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 
-echo removing anonymous users
-mysql --user="root" --password="" --execute="DELETE FROM mysql.user WHERE User='';"
-
-echo disabling remote root logins
-mysql --user="root" --password="" --execute="DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
-
-echo removing test database
-mysql --user="root" --password="" --execute="DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%';"
-
-echo flushing privileges
-mysql --user="root" --password="" --execute="FLUSH PRIVILEGES;"
-
-echo adding deb multimedia repository
-echo "deb http://www.deb-multimedia.org buster main non-free" >> /etc/apt/sources.list
-
-echo installing deb-multimedia-keyring
-wget http://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2016.8.1_all.deb > /dev/null 2>&1
-dpkg -i deb-multimedia-keyring_2016.8.1_all.deb > /dev/null 2>&1
-
-echo updating
+echo updating repositories
 apt update > /dev/null 2>&1
 
+echo installing docker
+apt install -y docker-ce docker-ce-cli containerd.io > /dev/null 2>&1
+
+echo creating containers user
+adduser --disabled-password --gecos '' containers > /dev/null 2>&1
+
+echo changing containers user password
+echo containers:containers | chpasswd
+
+echo adding containers user to containers group
+usermod -aG docker containers
+
+echo installing portainer
+docker run -d \
+ --restart=always \
+ --name portainer \
+ -h portainer \
+ -e PUID=1001 -e PGID=1001 \
+ -e TZ=Europe/Nicosia \
+ -p 9000:9000 \
+ -v /var/run/docker.sock:/var/run/docker.sock \
+ -v portainer:/data \
+ portainer/portainer > /dev/null 2>&1
+
+echo installing mariadb
+docker run -d \
+ --restart=always \
+ --name mariadb \
+ -h mariadb \
+ -e PUID=1001 -e PGID=1001 \
+ -e TZ=Europe/Nicosia \
+ -p 3306:3306 \
+ -v mariadb:/config \
+ -e MYSQL_ROOT_PASSWORD=$database_root_pass \
+ -e MYSQL_DATABASE=zm \
+ -e MYSQL_USER=zmuser \
+ -e MYSQL_PASSWORD=zmpass \
+ linuxserver/mariadb > /dev/null 2>&1
+
 echo installing zoneminder
-apt install -y zoneminder vlc-plugin-base > /dev/null 2>&1
-
-echo creating zoneminder database
-mysql --user="root" --password="$database_root_pass" < /usr/share/zoneminder/db/zm_create.sql
-mysql --user="root" --password="$database_root_pass" -e "grant all on zm.* to 'zmuser'@localhost identified by 'zmpass';"
-mysqladmin -uroot -p"$database_root_pass" reload
-
-echo setting permissions
-chmod 740 /etc/zm/zm.conf
-chown root:www-data /etc/zm/zm.conf
-chown -R www-data:www-data /usr/share/zoneminder/
-chown -R www-data:www-data /var/cache/zoneminder/
-
-echo adding user www-data to video group
-adduser www-data video > /dev/null 2>&1
-
-echo restart zoneminder
-systemctl stop zoneminder
-systemctl start zoneminder
-
-echo configuring apache
-a2enmod cgi > /dev/null 2>&1
-a2enmod rewrite > /dev/null 2>&1
-a2enconf zoneminder > /dev/null 2>&1
-
-echo configuring timezone
-sed -i "s/;date.timezone =/date.timezone = $(sed 's/\//\\\//' /etc/timezone)/g" /etc/php/7.3/apache2/php.ini
-
-echo restarting apache
-systemctl restart apache2
-
-echo installation complete
+docker run -d \
+ --restart=always \
+ --name zoneminder \
+ -h zoneminder \
+ -e PUID=1001 -e PGID=1001 \
+ -e TZ=Europe/Nicosia \
+ -p 80:80 \
+ -v zoneminder:/config \
+ -v zoneminder:/var/backups \
+ -v zoneminder:/var/cache/zoneminder \
+ --shm-size=4096m \
+ -e MYSQL_USER=zmuser \
+ -e MYSQL_PASSWORD=zmpass \
+ -e MYSQL_DATABASE=zm \
+ -e ZM_DB_HOST=$(hostname -I | cut -d' ' -f1) \
+ -e MYSQL_ROOT_PASSWORD=$database_root_pass \
+ quantumobject/docker-zoneminder > /dev/null 2>&1
+ 
+ echo installation complete
